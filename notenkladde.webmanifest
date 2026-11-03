@@ -1,0 +1,23 @@
+{
+  "name": "Notenkladde",
+  "short_name": "Notenkladde",
+  "start_url": "./notenkladde.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f3",
+  "theme_color": "#2f6b4f",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "notenkladde-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "notenkladde-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
