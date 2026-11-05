@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Notenkladde</title>
+<!-- Notenkladde Version 1.0 vom 2026-11-05 – die Versionsnummer steht im Skript unter APP_VERSION -->
 <!-- Als Web-App auf dem Home-Bildschirm: eigenes Symbol, Start im Vollbild ohne Browserleiste -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -49,6 +50,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand{padding:18px 16px 12px;display:flex;align-items:baseline;gap:8px}
 .brand h1{font-size:1.35rem;letter-spacing:-.01em}
 .brand small{color:var(--muted);font-size:.8rem}
+.appver{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap}
+.topbar .appver{margin-left:4px}
 .side-actions{padding:0 12px 12px;display:flex;gap:8px}
 .groups{flex:1;overflow:auto;padding:4px 8px 12px;min-height:0}
 .year-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:12px 8px 4px;font-weight:700}
@@ -129,7 +132,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 input[type=text],input[type=search],input[type=number],input[type=date],select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 11px;min-height:44px;width:100%}
 textarea{min-height:140px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;resize:vertical}
 label.field{display:grid;gap:4px;font-size:.85rem;color:var(--muted);font-weight:700}
-label.field input,label.field select{color:var(--fg);font-weight:400;font-size:1rem}
+label.field input,label.field select,label.field textarea{color:var(--fg);font-weight:400;font-size:1rem}
 
 /* Schülerliste */
 .students{list-style:none;margin:0;padding:0}
@@ -481,6 +484,39 @@ body.pen .grid input{caret-color:transparent}
 }
 @media (prefers-reduced-motion: reduce){ .sidebar{transition:none} }
 .print-only{display:none}
+/* Formular „Klassenarbeiten/Klausuren“ – Maße in mm, damit es wie die Papiervorlage aussieht */
+.fs{font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;color:#000;background:#fff;width:180mm;font-size:11pt;line-height:1.25;-webkit-text-size-adjust:100%}
+.fs h1{font-family:inherit;font-size:12pt;font-weight:700;line-height:1.2;text-align:center;letter-spacing:.3em;text-decoration:underline;text-underline-offset:2px;margin:0 0 7mm;padding:0;color:#000}
+.fs table{border-collapse:collapse;border-spacing:0}
+.fs .lay{width:180mm;table-layout:fixed;margin-bottom:4.5mm}
+.fs .lay td{border:0;padding:0;vertical-align:bottom;white-space:nowrap;background:#fff}
+.fs .lay td.l{padding-right:2mm}
+.fs .lay td.v{border-bottom:.2mm dotted #999;font-weight:700;white-space:normal;padding-right:3mm}
+.fs .lay td.gap{width:4mm}
+.fs .main{width:180mm;table-layout:fixed}
+.fs .main > tbody > tr > td{border:0;padding:0;vertical-align:top;background:#fff}
+.fs .spiegel{width:72mm;table-layout:fixed}
+.fs .spiegel th,.fs .spiegel td{border:.25mm solid #000;padding:0 2mm;height:5.2mm;font-weight:400;font-size:10.5pt;background:#fff;color:#000;white-space:nowrap;text-align:left}
+.fs .spiegel td.p{text-align:right}
+.fs .spiegel td.n{text-align:center;font-weight:700}
+.fs .spiegel td.b{vertical-align:middle}
+.fs .spiegel td.tot{padding-left:12mm}
+.fs .side{padding-left:4mm}
+.fs .side .sl{margin:0 0 1mm}
+.fs .side .sv{border-bottom:.2mm dotted #999;min-height:1.3em;font-weight:700;margin:0 0 7mm}
+.fs .side .bl{text-decoration:underline;margin:0 0 1mm}
+.fs .side .bv{white-space:pre-wrap;min-height:30mm;margin:0}
+.fsprev{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;padding:8mm 6mm;max-height:60dvh}
+.fsprev .fs{transform-origin:top left}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.formgrid .wide{grid-column:1 / -1}
+.formgrid textarea{min-height:70px;font-family:var(--font-body);font-size:.95rem}
+#printSheet{display:none}
+@media print{
+  body.print-form .app,body.print-form .toast,body.print-form dialog{display:none!important}
+  body.print-form #printSheet{display:block!important}
+  body.print-form{background:#fff}
+}
 @media print{
   @page{size:A4 landscape;margin:10mm}
   html,body{height:auto;background:#fff;color:#000}
@@ -511,7 +547,7 @@ body.pen .grid input{caret-color:transparent}
     </div>
     <nav class="groups" id="groupList"></nav>
     <div class="backup-box">
-      <div class="sync-label">Datendatei (IServ)</div>
+      <div class="sync-label" style="display:flex;justify-content:space-between;gap:8px"><span>Datendatei (IServ)</span><span class="appver" data-appver></span></div>
       <button class="backup-status" id="backupStatus" type="button" title="Abgleich-Einstellungen"></button>
       <div class="backup-row">
         <button class="btn grow" id="btnRestore" type="button">Öffnen</button>
@@ -525,6 +561,7 @@ body.pen .grid input{caret-color:transparent}
     <div class="topbar">
       <button class="btn small sbshow" id="btnDrawer" type="button" aria-label="Lerngruppen anzeigen" title="Lerngruppen anzeigen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="M5.5 8h1.5M5.5 11h1.5M5.5 14h1.5"/></svg><span>Gruppen</span></button>
       <strong id="topTitle">Notenkladde</strong>
+      <span class="appver" data-appver></span>
       <button class="topsync" id="topSync" type="button" hidden>● Sichern</button>
     </div>
     <div class="sync-banner" id="syncBanner" hidden></div>
@@ -806,7 +843,33 @@ body.pen .grid input{caret-color:transparent}
     <div class="dlg-body" id="distBody"></div>
     <div class="dlg-foot">
       <label class="check" style="margin-right:auto"><input type="checkbox" id="distNames"> Namen zeigen</label>
+      <button class="btn" type="button" id="distForm">Formular …</button>
       <button class="btn" type="button" id="distCopy">Notenspiegel kopieren</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Formular Notenspiegel -->
+<dialog id="dlgForm" class="wide" aria-labelledby="formTitle">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="formTitle">Formular „Klassenarbeiten/Klausuren“</h2><button class="btn ghost small" type="button" data-close>Schließen</button></div>
+    <div class="dlg-body">
+      <div class="formgrid">
+        <label class="field">Klasse/Kurs<input type="text" id="fmKlasse"></label>
+        <label class="field">Fach<input type="text" id="fmFach"></label>
+        <label class="field">Nr.<input type="text" id="fmNr"></label>
+        <label class="field">Fachlehrer<input type="text" id="fmLehrer" placeholder="wird gemerkt"></label>
+        <label class="field wide">Thema<input type="text" id="fmThema"></label>
+        <label class="field">Datum der Klassenarbeit/Klausur<input type="date" id="fmDatum"></label>
+        <label class="field">Datum der Rückgabe<input type="date" id="fmRueck"></label>
+        <label class="field wide">Bemerkungen<textarea id="fmBem"></textarea></label>
+      </div>
+      <p class="hint" style="margin:0">Anzahlen, Insgesamt und Durchschnitt kommen aus der Notenspalte. Tendenznoten werden den Notenpunkten zugeordnet (1+ = 15 … 6 = 0). Deine Angaben werden bei dieser Spalte gespeichert.</p>
+      <div class="fsprev" id="fmPreview"></div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn" type="button" id="fmSave">Als PDF speichern</button>
+      <button class="btn primary" type="button" id="fmPrint">Drucken</button>
     </div>
   </div>
 </dialog>
@@ -853,6 +916,7 @@ body.pen .grid input{caret-color:transparent}
   </div>
 </dialog>
 
+<div id="printSheet" aria-hidden="true"></div>
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
@@ -865,6 +929,9 @@ body.pen .grid input{caret-color:transparent}
                  Berechnungsspalten: {type:"calc", fmt:"dez|tendenz|ganz|np", sources:[{id,w}]} – stehen immer rechts.
    state.templates: [{id,name,calcs:[{key,title,fmt,sources:[{key,w}]}]}]  (Vorlagen für Gesamtnoten) 
                  grades:{ [colId]: { [studentId]: "Rohwert" } } }            */
+/* ============ Version – bei jeder neuen Fassung hochzählen ============ */
+const APP_VERSION = "1.0";
+const APP_DATE = "2026-11-05";
 const STORE_KEY = "notenkladde.v1";
 /* Läuft die Notenkladde in der Mac-App? Dann übernimmt die App Speichern, Öffnen, Sichern, Export und Druck. */
 const NATIVE = (window.__NK_NATIVE && window.webkit?.messageHandlers?.nk) ? window.__NK_NATIVE : null;
@@ -1498,6 +1565,7 @@ function openDist(g, col){
   $("#distNames").checked = false; $("#distNames").disabled = !!ui.beamer;
   $("#distNames").closest("label").title = ui.beamer ? "Im Beamer-Modus ausgeschaltet" : "";
   renderDist();
+  $("#distForm").hidden = distKind(col) !== "grade";
   $("#dlgDist").showModal();
 }
 function renderDist(){
@@ -1583,6 +1651,201 @@ function renderDist(){
   $("#distBody").innerHTML = html;
 }
 $("#distNames").addEventListener("change", renderDist);
+/* ---------- Formular „Klassenarbeiten/Klausuren“ ---------- */
+const NP_BANDS = [["Sehr gut",[15,14,13]],["Gut",[12,11,10]],["Befriedigend",[9,8,7]],["Ausreichend",[6,5,4]],["Mangelhaft",[3,2,1]],["Ungenügend",[0]]];
+let fmCtx = null;
+function formStats(g, col){
+  const nps = g.students.map(s => gradeNp(g, col, s.id)).filter(x => x !== null && x !== undefined);
+  const counts = Array(16).fill(0); nps.forEach(n => counts[n]++);
+  const asNp = col.type === "np" || (col.type !== "note" && col.fmt === "np");
+  let avg = "";
+  if(nps.length){
+    if(asNp) avg = fmtNum(nps.reduce((a,b) => a + b, 0) / nps.length, 1) + " NP";
+    else { const v = g.students.map(s => noteValue(g, col, s.id)).filter(x => x !== null && x !== undefined); avg = v.length ? fmtNum(v.reduce((a,b) => a + b, 0) / v.length, 2) : ""; }
+  }
+  return { counts, n: nps.length, avg };
+}
+const fmtDE = d => { if(!d) return ""; const [y,m,t] = d.split("-"); return `${t}.${m}.${y}`; };
+function formSheetHtml(d, st){
+  const rows = NP_BANDS.map(([name, pts]) => pts.map((p, i) =>
+    `<tr><td class="p">${p}</td>${i === 0 ? `<td class="b" rowspan="${pts.length}">${name}</td>` : ""}<td class="n">${st.counts[p] || ""}</td></tr>`).join("")).join("");
+  return `<div class="fs">
+    <h1>Klassenarbeiten/Klausuren</h1>
+    <table class="lay"><colgroup><col style="width:22mm"><col><col style="width:4mm"><col style="width:10mm"><col style="width:40mm"><col style="width:4mm"><col style="width:7mm"><col style="width:16mm"></colgroup>
+      <tr><td class="l">Klasse/Kurs:</td><td class="v">${esc(d.klasse)}</td><td class="gap"></td><td class="l">Fach:</td><td class="v">${esc(d.fach)}</td><td class="gap"></td><td class="l">Nr.</td><td class="v">${esc(d.nr)}</td></tr></table>
+    <table class="lay"><colgroup><col style="width:14mm"><col><col style="width:4mm"><col style="width:22mm"><col style="width:42mm"></colgroup>
+      <tr><td class="l">Thema:</td><td class="v">${esc(d.thema)}</td><td class="gap"></td><td class="l">Fachlehrer:</td><td class="v">${esc(d.lehrer)}</td></tr></table>
+    <table class="main"><colgroup><col style="width:27mm"><col style="width:74mm"><col></colgroup><tbody><tr>
+      <td>Notenspiegel</td>
+      <td><table class="spiegel"><colgroup><col style="width:23mm"><col><col style="width:15mm"></colgroup>
+        <thead><tr><th>Punkte (SII)</th><th>Notenbereich</th><th>Anzahl</th></tr></thead>
+        <tbody>${rows}
+          <tr><td class="tot" colspan="2">Insgesamt</td><td class="n">${st.n || ""}</td></tr>
+          <tr><td class="tot" colspan="2">Durchschnitt</td><td class="n">${esc(st.avg)}</td></tr></tbody></table></td>
+      <td class="side">
+        <p class="sl">Datum der Klassenarbeit/Klausur:</p><p class="sv">${esc(fmtDE(d.datum))}</p>
+        <p class="sl">Datum der Rückgabe:</p><p class="sv">${esc(fmtDE(d.rueck))}</p>
+        <p class="bl">Bemerkungen:</p><p class="bv">${esc(d.bem)}</p>
+      </td></tr></tbody></table>
+  </div>`;
+}
+function openForm(g, col){
+  const grp = col.groupId ? g.colGroups.find(x => x.id === col.groupId) : null;
+  const saved = col.form || {};
+  const firstDate = col.date || (grp ? g.columns.find(c => c.groupId === grp.id && c.date)?.date : null) || "";
+  const nrGuess = ((grp ? grp.title : col.title) || "").match(/\d+/)?.[0] || "";
+  fmCtx = { g, col };
+  $("#fmKlasse").value = saved.klasse ?? g.name ?? "";
+  $("#fmFach").value = saved.fach ?? g.fach ?? "";
+  $("#fmNr").value = saved.nr ?? nrGuess;
+  $("#fmThema").value = saved.thema ?? "";
+  $("#fmLehrer").value = saved.lehrer ?? state.meta.teacher ?? "";
+  $("#fmDatum").value = saved.datum ?? firstDate;
+  $("#fmRueck").value = saved.rueck ?? todayLocal();
+  $("#fmBem").value = saved.bem ?? "";
+  $("#fmPrint").hidden = ART;              // Claude lässt kein Drucken aus der Seite zu
+  renderFormPreview();
+  $("#dlgDist").close();
+  $("#dlgForm").showModal();
+}
+function formData(){
+  return { klasse:$("#fmKlasse").value.trim(), fach:$("#fmFach").value.trim(), nr:$("#fmNr").value.trim(), thema:$("#fmThema").value.trim(),
+           lehrer:$("#fmLehrer").value.trim(), datum:$("#fmDatum").value, rueck:$("#fmRueck").value, bem:$("#fmBem").value.trim() };
+}
+function renderFormPreview(){
+  const { g, col } = fmCtx;
+  const box = $("#fmPreview");
+  box.innerHTML = formSheetHtml(formData(), formStats(g, col));
+  const sheet = box.querySelector(".fs"), avail = box.clientWidth - 2 * 22;
+  const scale = Math.min(1, avail / (sheet.offsetWidth || 680));
+  sheet.style.transform = `scale(${scale})`;
+  box.style.height = (sheet.offsetHeight * scale + 60) + "px";
+}
+$("#dlgForm").addEventListener("input", () => fmCtx && renderFormPreview());
+$("#dlgForm").addEventListener("change", e => {
+  if(!fmCtx) return;
+  const d = formData(), { col } = fmCtx;
+  col.form = d;
+  if(e.target.id === "fmLehrer") state.meta.teacher = d.lehrer;
+  save();
+});
+function standaloneFormHtml(){
+  const css = [...document.querySelectorAll("style")].map(x => x.textContent).join("\n").match(/\.fs[\s\S]*?(?=\.fsprev)/)?.[0] || "";
+  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Notenspiegel ${esc(formData().klasse)}</title>
+<style>@page{size:A4 portrait;margin:15mm}body{margin:0;padding:15mm;background:#fff}@media print{body{padding:0}}${css}</style></head>
+<body>${formSheetHtml(formData(), formStats(fmCtx.g, fmCtx.col))}<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
+}
+$("#fmPrint").addEventListener("click", () => {
+  const { g, col } = fmCtx;
+  $("#printSheet").innerHTML = formSheetHtml(formData(), formStats(g, col));
+  $("#dlgForm").close();
+  document.body.classList.add("print-form");
+  // Hochformat nur für das Formular (die Tabelle druckt quer)
+  const pg = document.createElement("style"); pg.id = "pgForm"; pg.textContent = "@page{size:A4 portrait;margin:15mm}"; document.body.appendChild(pg);
+  const done = () => { document.body.classList.remove("print-form"); document.getElementById("pgForm")?.remove(); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  setTimeout(() => { if(NATIVE) nk({ type:"print" }); else window.print(); setTimeout(done, NATIVE ? 4000 : 1500); }, 120);
+});
+/* ---------- Formular als PDF (jsPDF, wird erst bei Bedarf geladen) ---------- */
+const JSPDF_URL = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+let jspdfP = null;
+function loadJsPdf(){
+  if(window.jspdf?.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+  if(!jspdfP) jspdfP = new Promise((res, rej) => {
+    const sc = document.createElement("script"); sc.src = JSPDF_URL; sc.async = true;
+    sc.onload = () => window.jspdf?.jsPDF ? res(window.jspdf.jsPDF) : rej(new Error("PDF-Bibliothek fehlt"));
+    sc.onerror = () => { jspdfP = null; rej(new Error("PDF-Bibliothek konnte nicht geladen werden – Internetverbindung prüfen")); };
+    document.head.appendChild(sc);
+  });
+  return jspdfP;
+}
+function buildFormPdf(jsPDF, d, st){
+  const doc = new jsPDF({ unit:"mm", format:"a4", orientation:"portrait" });
+  const X = 15, W = 180;
+  const dotted = (x1, x2, y) => { doc.setLineDashPattern([0.35, 0.65], 0); doc.setLineWidth(0.2); doc.setDrawColor(140); doc.line(x1, y, x2, y); doc.setLineDashPattern([], 0); doc.setDrawColor(0); };
+  const fitText = (t, maxW) => { t = String(t || ""); while(t && doc.getTextWidth(t) > maxW) t = t.slice(0, -1); return t; };
+  // Titel
+  doc.setFont("helvetica", "bold"); doc.setFontSize(12);
+  const title = "Klassenarbeiten/Klausuren", cs = 1.1;
+  doc.setCharSpace(cs);
+  const tw = doc.getTextWidth(title) + cs * (title.length - 1);
+  doc.text(title, X + (W - tw) / 2, 22);
+  doc.setCharSpace(0); doc.setLineWidth(0.3); doc.line(X + (W - tw) / 2, 23.2, X + (W + tw) / 2, 23.2);
+  // Kopfzeilen: [Bezeichnung, Breite der Bezeichnung, Wert, Breite des Werts]
+  const headRow = (y, items) => {
+    let x = X;
+    items.forEach(([label, lw, val, vw], i) => {
+      doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); doc.text(label, x, y); x += lw;
+      doc.setFont("helvetica", "bold"); doc.text(fitText(val, vw - 2), x + 0.5, y - 0.3);
+      dotted(x, x + vw - 1, y + 1); x += vw + (i < items.length - 1 ? 4 : 0);
+    });
+  };
+  headRow(36, [["Klasse/Kurs:", 23, d.klasse, 76], ["Fach:", 10, d.fach, 40], ["Nr.", 7, d.nr, 16]]);
+  headRow(45, [["Thema:", 14, d.thema, 98], ["Fachlehrer:", 21, d.lehrer, 43]]);
+  // Notenspiegel-Tabelle
+  const tx = X + 27, cw = [23, 34, 15], tW = 72, rh = 5.5;
+  let y = 52;
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); doc.text("Notenspiegel", X, y + 4);
+  doc.setLineWidth(0.25);
+  const cellText = (t, x, w, yy, align = "left", bold = false) => {
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    const ty = yy + rh / 2 + 1.3;
+    if(align === "right") doc.text(String(t), x + w - 2, ty, { align:"right" });
+    else if(align === "center") doc.text(String(t), x + w / 2, ty, { align:"center" });
+    else doc.text(String(t), x + 2, ty);
+  };
+  doc.rect(tx, y, cw[0], rh); doc.rect(tx + cw[0], y, cw[1], rh); doc.rect(tx + cw[0] + cw[1], y, cw[2], rh);
+  cellText("Punkte (SII)", tx, cw[0], y); cellText("Notenbereich", tx + cw[0], cw[1], y); cellText("Anzahl", tx + cw[0] + cw[1], cw[2], y);
+  y += rh;
+  NP_BANDS.forEach(([name, pts]) => {
+    const bandH = rh * pts.length;
+    doc.rect(tx + cw[0], y, cw[1], bandH);
+    doc.setFont("helvetica", "normal"); doc.text(name, tx + cw[0] + 2, y + bandH / 2 + 1.3);
+    pts.forEach(p => {
+      doc.rect(tx, y, cw[0], rh); doc.rect(tx + cw[0] + cw[1], y, cw[2], rh);
+      cellText(p, tx, cw[0], y, "right");
+      if(st.counts[p]) cellText(st.counts[p], tx + cw[0] + cw[1], cw[2], y, "center", true);
+      y += rh;
+    });
+  });
+  [["Insgesamt", st.n || ""], ["Durchschnitt", st.avg || ""]].forEach(([l, v]) => {
+    doc.rect(tx, y, cw[0] + cw[1], rh); doc.rect(tx + cw[0] + cw[1], y, cw[2], rh);
+    doc.setFont("helvetica", "normal"); doc.text(l, tx + 12, y + rh / 2 + 1.3);
+    if(v !== "") cellText(v, tx + cw[0] + cw[1], cw[2], y, "center", true);
+    y += rh;
+  });
+  // rechte Spalte
+  const sx = tx + tW + 4, sw = X + W - sx;
+  let sy = 56;
+  const sideField = (label, val) => {
+    doc.setFont("helvetica", "normal"); doc.text(label, sx, sy); sy += 6;
+    doc.setFont("helvetica", "bold"); doc.text(fitText(val, sw - 1), sx, sy - 0.5); dotted(sx, sx + sw, sy + 0.8); sy += 9;
+  };
+  sideField("Datum der Klassenarbeit/Klausur:", fmtDE(d.datum));
+  sideField("Datum der Rückgabe:", fmtDE(d.rueck));
+  doc.setFont("helvetica", "normal"); doc.text("Bemerkungen:", sx, sy);
+  doc.setLineWidth(0.2); doc.line(sx, sy + 0.8, sx + doc.getTextWidth("Bemerkungen:"), sy + 0.8);
+  if(d.bem){ doc.setFontSize(10); doc.text(doc.splitTextToSize(d.bem, sw), sx, sy + 6); }
+  doc.setProperties({ title: `Notenspiegel ${d.klasse}${d.nr ? " Nr. " + d.nr : ""}`, creator: "Notenkladde" });
+  return doc;
+}
+$("#fmSave").addEventListener("click", async () => {
+  const d = formData(), st = formStats(fmCtx.g, fmCtx.col);
+  const name = `Notenspiegel_${safeName(d.klasse || fmCtx.g.name)}${d.nr ? "_Nr" + safeName(d.nr) : ""}.pdf`;
+  let jsPDF;
+  try{ jsPDF = await loadJsPdf(); }catch(e){ toast(e.message); return; }
+  const doc = buildFormPdf(jsPDF, d, st);
+  if(NATIVE){
+    const b64 = doc.output("datauristring").split(",")[1];
+    nk({ type:"saveAs", data: b64, name, base64: true });
+  } else if(ART){
+    await artSave(doc.output("blob"), name, false);
+  } else {
+    await deliverFile(doc.output("blob"), name, "application/pdf");
+  }
+});
+$("#distForm").addEventListener("click", () => openForm(distCtx.g, distCtx.col));
+
 $("#distCopy").addEventListener("click", () => {
   const txt = $("#distText").textContent;
   const fallback = () => { const r = document.createRange(); r.selectNodeContents($("#distText")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Text markiert – jetzt kopieren (⌘C / Strg+C)"); };
@@ -1666,6 +1929,7 @@ function buildCsv(g, onlyResults, withNotes){
 }
 async function deliverFile(text, name, mime){
   if(NATIVE){ nk({ type:"saveAs", data: text, name }); return; }
+  if(ART){ await artSave(text, name, false); return; }
   const file = new File([text], name, { type:mime });
   if(isIOS && navigator.canShare && navigator.canShare({ files:[file] })){
     try{ await navigator.share({ files:[file] }); toast("Datei übergeben: " + name); return; }catch(e){ if(e.name === "AbortError") return; }
@@ -1898,6 +2162,7 @@ const TOOL_ICONS = {
 function helpHtml(){
   const li = (icon, text, cls = "") => `<li><span class="hi ${cls}">${icon}</span><span>${text}</span></li>`;
   return `<div class="helpbox" id="helpBox">
+    <div class="hint">Notenkladde Version ${APP_VERSION} vom ${fmtDE(APP_DATE)}${NATIVE ? " · Mac-App" : ART ? " · in Claude" : ""}</div>
     <div><h4>Knöpfe</h4><ul class="helplist">
       ${li(TOOL_ICONS.col, "<b>Neue Spalte</b> – für eine Note, Notenpunkte, Punkte, Smileys, eigene Auswahl oder Checkboxen")}
       ${li(TOOL_ICONS.group, "<b>Neue Spaltengruppe</b> – z. B. eine Klausur mit Aufgaben, Summe und Note oder „Mündlich“ mit Durchschnitt")}
@@ -2136,7 +2401,7 @@ $("#mainInner").addEventListener("click", e => {
     case "undo": undo(); break;
     case "unsort": ui.sort = null; renderMain(); toast("Wieder alphabetisch sortiert"); break;
     case "beamer": setBeamer(!ui.beamer); break;
-    case "export": $("#dlgExport").showModal(); break;
+    case "export": $('#dlgExport [data-exp="print"]').hidden = ART; $("#dlgExport").showModal(); break;
     case "copy-structure": {
       const src = state.groups.find(x => x.id === $("#gCopyFrom").value); if(!src) break;
       const go = () => { const n = copyStructure(src, g); save(); ui.tab = "noten"; renderMain(); toast(`${n} Spalten aus „${src.name}“ übernommen`, UNDO_ACTION); };
@@ -3234,7 +3499,7 @@ $("#impFile").addEventListener("change", e => {
   const r = new FileReader();
   r.onload = () => {
     const text = r.result;
-    if(text.includes("�")){ const r2 = new FileReader(); r2.onload = () => loadImportText(r2.result); r2.readAsText(f, "windows-1252"); }
+    if(text.includes("\uFFFD")){ const r2 = new FileReader(); r2.onload = () => loadImportText(r2.result); r2.readAsText(f, "windows-1252"); }
     else loadImportText(text);
   };
   r.readAsText(f, "utf-8");
@@ -3274,12 +3539,36 @@ let fileHandle = null;               // Chrome/Edge am PC: geöffnete Datei dire
 // Läuft die App eingebettet (z. B. in einer Vorschau)? Dort sind Speicherdialoge und Downloads gesperrt.
 const inFrame = (() => { try{ return window.self !== window.top; }catch(e){ return true; } })();
 const hasFsAccess = typeof window.showOpenFilePicker === "function" && !inFrame && window.isSecureContext !== false;
+// Läuft die Notenkladde als Seite in Claude (claude.ai / Claude-App)? Dann laufen Dateien über die Speichern-Funktion von Claude.
+const ART = inFrame && !!(window.claude && typeof window.claude.use === "function");
+let artDl = null;
+if(ART){ try{ window.claude.use("downloads").then(d => { artDl = d; }).catch(() => {}); }catch(e){} }
+async function artSave(text, name, mark){
+  let dl = artDl;
+  if(!dl){ try{ dl = await window.claude.use("downloads"); artDl = dl; }catch(e){ dl = null; } }
+  if(!dl){ toast("Speichern ist in dieser Ansicht nicht möglich"); return false; }
+  try{
+    const r = await dl.save({ filename: name, data: text });
+    if(r && r.status === "saved"){
+      if(mark) markSaved("gesichert");
+      toast(mark ? `Gesichert: ${name} – im IServ-Ordner ablegen bzw. die alte Datei ersetzen` : `Gespeichert: ${name}`);
+      return true;
+    }
+  }catch(e){
+    const c = e && e.code;
+    if(c === "declined"){ if(mark) toast("Nicht gesichert – „Sichern“ bleibt rot"); }
+    else if(c === "rate_limited") toast("Es ist schon ein Speichern-Dialog offen");
+    else toast(`Speichern nicht möglich (${c || e})`);
+  }
+  return false;
+}
 // iPad/iPhone: Teilen-Menü mit „In Dateien sichern“. Am Mac zeigt Safari ein Teilen-Menü ohne Speichern → dort Download.
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const isMacSafari = !isIOS && /Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Edg|Firefox/.test(navigator.userAgent);
 const METHOD_KEY = "notenkladde.saveMethod";
 function saveMethod(){
   let m = "auto"; try{ m = localStorage.getItem(METHOD_KEY) || "auto"; }catch(e){}
+  if(ART) return "artifact";
   if(m === "auto") return hasFsAccess ? "direct" : isIOS ? "share" : "download";
   if(m === "direct" && !hasFsAccess) return "download";
   return m;
@@ -3306,7 +3595,7 @@ function renderSyncStatus(){
   $("#topSync").hidden = !(unsaved && hasData());
   // Start-Banner
   const b = $("#syncBanner");
-  if(inFrame){
+  if(inFrame && !ART){
     b.hidden = false;
     b.innerHTML = `<span class="txt"><b>Vorschau-Modus.</b> Die Notenkladde läuft gerade eingebettet in einer anderen App. Hier können Dateien nicht zuverlässig geöffnet oder gesichert werden, und die Daten landen in einem eigenen Speicher. Lade die Datei herunter und öffne sie direkt in Safari, Chrome oder Edge.</span>`;
   } else if(!syncedThisSession && !bannerDismissed){
@@ -3439,7 +3728,7 @@ let pendingRev = null;
 function exportJson(asCopy){
   if(!state.meta.lastChange) state.meta.lastChange = nowIso();
   const data = JSON.parse(JSON.stringify(state));
-  data.meta.savedAt = nowIso(); data.meta.savedBy = deviceName();
+  data.meta.savedAt = nowIso(); data.meta.savedBy = deviceName(); data.meta.appVersion = APP_VERSION;
   data.meta.parentRev = state.meta.sync?.rev || null;
   data.meta.rev = uid();
   if(!asCopy) pendingRev = data.meta.rev;
@@ -3457,6 +3746,7 @@ async function saveDataFile(){
   const json = exportJson();
   if(NATIVE){ nk({ type:"save", data: json }); return; }
   const method = saveMethod();
+  if(method === "artifact"){ await artSave(json, DATA_FILE, true); return; }
   // 1) Chrome/Edge: geöffnete Datei direkt überschreiben bzw. Speicherort wählen
   if(method === "direct"){
     try{
@@ -3495,6 +3785,7 @@ async function saveDataFile(){
   downloadFile(json, DATA_FILE, true);
 }
 function downloadFile(json, name, mark, msg){
+  if(ART){ artSave(json, name, mark); return; }
   if(inFrame){ toast("Im Vorschau-Modus kann nicht gesichert werden – App direkt im Browser öffnen"); return; }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([json], { type:"application/json" })); a.download = name;
@@ -3523,7 +3814,7 @@ async function saveCopy(tag){
   const file = new File([json], name, { type:"application/json" });
   if(saveMethod() === "share" && navigator.canShare && navigator.canShare({ files:[file] })){
     try{ await navigator.share({ files:[file] }); toast("Kopie übergeben: " + name); }catch(err){ if(err.name !== "AbortError") downloadFile(json, name, false); }
-  } else { downloadFile(json, name, false); toast("Kopie heruntergeladen: " + name); }
+  } else { downloadFile(json, name, false); if(!ART) toast("Kopie heruntergeladen: " + name); }
 }
 
 /* ---------- Rückmeldungen der Mac-App ---------- */
@@ -3545,7 +3836,7 @@ function openSyncSettings(){
   $("#syncMethod").value = m;
   $("#syncMethod").querySelector('[value="direct"]').disabled = !hasFsAccess;
   updateMethodHint();
-  $("#syncMethodBox").hidden = !!NATIVE; $("#syncSaveAs").hidden = !NATIVE;
+  $("#syncMethodBox").hidden = !!NATIVE || ART; $("#syncSaveAs").hidden = !NATIVE;
   $("#dlgSync").showModal();
 }
 $("#syncDevice").addEventListener("change", e => {
@@ -3719,6 +4010,7 @@ $("#scrim").addEventListener("click", closeDrawer);
 window.addEventListener("resize", () => { const t = document.querySelector("table.grid"); if(t) t.style.setProperty("--r1h", t.tHead.rows[0].getBoundingClientRect().height + "px"); });
 
 function renderAll(){ renderSidebar(); renderMain(); }
+document.querySelectorAll("[data-appver]").forEach(el => { el.textContent = "v" + APP_VERSION; el.title = `Notenkladde Version ${APP_VERSION} vom ${fmtDE(APP_DATE)}`; });
 renderAll();
 committed = dataSnap();
 histAdd("Beim Start");
